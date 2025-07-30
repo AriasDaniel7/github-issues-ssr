@@ -4,7 +4,7 @@ import { environment } from '@environments/environment';
 import { GitHubIssue, State } from '@issues/interfaces/github-issue.interface';
 import { GitHubLabel } from '@issues/interfaces/github-label.interface';
 import { injectQuery } from '@tanstack/angular-query-experimental';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -29,10 +29,20 @@ export class IssuesService {
     });
 
     return firstValueFrom(
-      this.http.get<GitHubIssue[]>(`${this.BASE_URL}/issues`, {
-        headers: this.headers,
-        params,
-      })
+      this.http
+        .get<GitHubIssue[]>(`${this.BASE_URL}/issues`, {
+          headers: this.headers,
+          params,
+        })
+        .pipe(
+          tap(() => {
+            console.log(
+              `Fetching issues with state: ${state} and labels: ${selectedLabels.join(
+                ', '
+              )}`
+            );
+          })
+        )
     );
   }
 
@@ -52,11 +62,13 @@ export class IssuesService {
     ],
     queryFn: () =>
       this.getIssues(this.selectedState(), [...this.selectedLabels()]),
+    staleTime: 1000 * 60 * 5, // 5 minutes
   }));
 
   labelsQuery = injectQuery(() => ({
     queryKey: ['labels'],
     queryFn: () => firstValueFrom(this.getLabels()),
+    staleTime: 1000 * 60 * 5, // 5 minutes
   }));
 
   toggleLabel(label: string) {

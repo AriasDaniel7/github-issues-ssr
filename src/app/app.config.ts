@@ -25,6 +25,6 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideClientHydration(withEventReplay()),
     provideHttpClient(withFetch()),
-    provideTanStackQuery(new QueryClient()),
+    provideTanStackQuery(new QueryClient(), withDevtools()),
   ],
 };
