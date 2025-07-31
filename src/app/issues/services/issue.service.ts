@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { environment } from '@environments/environment';
 import { GitHubIssue } from '@issues/interfaces/github-issue.interface';
-import { injectQuery } from '@tanstack/angular-query-experimental';
+import { injectQuery, QueryClient } from '@tanstack/angular-query-experimental';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable({
@@ -12,6 +12,7 @@ export class IssueService {
   private http = inject(HttpClient);
   private BASE_URL = environment.baseUrl;
   private GITHUB_TOKEN = environment.gitHubToken;
+  private queryClient = inject(QueryClient);
 
   private issueNumber = signal<string>('');
   private headers = new HttpHeaders({
@@ -43,11 +44,27 @@ export class IssueService {
     queryKey: ['issue', this.issueNumber()],
     queryFn: () => this.getIssueByNumber(this.issueNumber()),
     enabled: this.issueNumber() !== '',
+    staleTime: 1000 * 60 * 5,
   }));
 
   issueCommentsQuery = injectQuery(() => ({
     queryKey: ['issue', this.issueNumber(), 'comments'],
     queryFn: () => this.getIssueComments(this.issueNumber()),
     enabled: this.issueNumber() !== '',
+    staleTime: 1000 * 60 * 5,
   }));
+
+  prefetchIssueComments(issueNumber: string) {
+    return this.queryClient.prefetchQuery({
+      queryKey: ['issue', issueNumber, 'comments'],
+      queryFn: () => this.getIssueComments(issueNumber),
+      staleTime: 1000 * 60 * 5,
+    });
+  }
+
+  setIssueData(issue: GitHubIssue) {
+    this.queryClient.setQueryData(['issue', issue.number.toString()], issue, {
+      updatedAt: Date.now() + 1000 * 60 * 5,
+    });
+  }
 }

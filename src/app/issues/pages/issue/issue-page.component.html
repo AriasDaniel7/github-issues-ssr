@@ -1,4 +1,4 @@
-@if(issueQuery.data()){
+@if(issueQuery.isSuccess()){
 
 <div class="flex items-center gap-6">
   <a
@@ -8,13 +8,13 @@
     <i class="fa-solid fa-arrow-left"></i>
   </a>
   <h1 class="text-3xl font-bold">
-    <span>{{ issueQuery.data()?.title }} </span>
+    <span>{{ issueQuery.data().title }} </span>
     <span class="text-gray-400 font-normal">#{{ issueNumber() }}</span>
   </h1>
 </div>
 
 <section class="my-6">
-  @if (issueQuery.data() && issueCommentsQuery.data()) {
+  @if (issueQuery.isSuccess()) {
   <issue-detail-item
     [issueComments]="issueCommentsQuery.data()!"
     [issue]="issueQuery.data()!"
