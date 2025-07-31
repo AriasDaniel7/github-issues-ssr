@@ -1,0 +1,23 @@
+<div class="border border-gray-800 bg-gray-800 p-2 rounded-md">
+  <div class="flex space-x-3 items-center">
+    <img
+      [src]="issue().user.avatar_url"
+      width="32"
+      height="32"
+      alt="User Avatar"
+      class="w-8 h-8 rounded-full aspect-square"
+    />
+
+    <h2 class="text-gray-300 font-semibold">
+      {{ issue().user.login }}
+      <span class="font-normal"
+        >commented on this issue on
+        {{ issue().created_at | date : "medium" }}</span
+      >
+    </h2>
+  </div>
+
+  <div class="mt-2">
+    <markdown [data]="issue().body"></markdown>
+  </div>
+</div>
